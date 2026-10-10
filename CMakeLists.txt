@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(WeatherProject LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # ---------- 基本设置 ----------
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -19,7 +19,7 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS
 
 # ---------- 查找 Qt ----------
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Network Core Widgets REQUIRED)
 
 # ---------- 获取 nlohmann_json ----------
 include(FetchContent)
@@ -52,6 +52,19 @@ file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/*.c
 )
 add_library(core STATIC ${CORE_SOURCES})
+
+# 手动 moc entity.hpp，确保 moc 输出被编译进 core
+qt6_wrap_cpp(CORE_MOC_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/include/core/entity.hpp
+)
+target_sources(core PRIVATE ${CORE_MOC_SRCS})
+
+# 关掉 core 的 AUTOMOC，避免重复生成
+set_target_properties(core PROPERTIES AUTOMOC OFF)
+
+target_include_directories(core PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/include/core
+)
 file(GLOB_RECURSE UTILS_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/*.c
@@ -65,7 +78,7 @@ file(GLOB_RECURSE PROJECT_HEADERS CONFIGURE_DEPENDS
 file(GLOB_RECURSE PROJECT_UI CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.ui
 )
-
+set_target_properties(core PROPERTIES AUTOMOC ON)
 # ---------- 可执行文件 ----------
 add_executable(${PROJECT_NAME}
     ${PROJECT_SOURCES}
@@ -80,6 +93,9 @@ target_include_directories(core PUBLIC
 target_link_libraries(core PUBLIC
     jwt-cpp::jwt-cpp
     nlohmann_json::nlohmann_json
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Network
+    utils
 )
 
 target_include_directories(utils PUBLIC

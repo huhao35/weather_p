@@ -1,8 +1,11 @@
 #include "jwt_summon.hpp"
 #include <chrono>
 #include <fstream>
+#include <format>
 namespace Profile {
 std::string api_host = "https://nb65nqv5pk.re.qweatherapi.com";
+std::string get_weather_historical = "/v7/historical/weather";
+std::string get_weather_current = "/weather/v1/current/";
 std::string private_key_path = "../../resource/ed25519-private.pem";
 std::string kid = "T6H2J6F39X";
 std::string project_id = "2NDWA4TH9D";
@@ -25,5 +28,15 @@ std::string Profile::get_jwt_string() {
       .set_issued_at(jwt::date::clock::now())
       .set_expires_at(jwt::date::clock::now() + std::chrono::hours(1))
       .sign(jwt::algorithm::ed25519("", private_key));
+}
+std::string get_url_current(float la,float lo) {
+  return std::format("{}{}{:.2f}/{:.2f}", Profile::api_host,
+                     Profile::get_weather_current, la, lo);
+}
+std::string get_url_historical(std::chrono::year_month_day ymd,
+                               std::string loc) {
+    std::string date = std::format("{:04}{:02}{:02}", (int)ymd.year(), (unsigned)ymd.month(),(unsigned)ymd.day());
+  return std::format("{}{}?location={}&date={}", Profile::api_host,
+                     Profile::get_weather_historical, loc, date);  
 }
 

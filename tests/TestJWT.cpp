@@ -46,5 +46,5 @@ std::string runCurl(const std::string& url,const std::string& token) {
 TEST_F(GetTokenTest, HaveResponse) {
     auto res = runCurl(api_host + "/v7/weather/now?location=116.41,39.92&lang=zh", token);
   EXPECT_NE(res, "");
-  std::cout << res << std::endl;
+  // std::cout << res << std::endl;
 }
