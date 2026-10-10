@@ -41,7 +41,7 @@ fetchcontent_makeavailable(jwt-cpp)
 
 
 
-
+find_package(Qt6 REQUIRED COMPONENTS Charts)
 # ---------- 收集源文件 ----------
 file(GLOB PROJECT_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
@@ -110,6 +110,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Charts)
 
 # ---------- 链接库 ----------
 target_link_libraries(${PROJECT_NAME} PRIVATE

@@ -19,9 +19,14 @@ std::vector<std::string> split(const std::string& s, char delim) {
 uint64_t DateToTimeStamp(const std::string &s) {
   std::istringstream iss(s);
   std::chrono::sys_seconds tp;
-  iss >> std::chrono::parse("%Y-%m-%d %H:%M", tp);
+  iss >> std::chrono::parse("%Y-%m-%dT%H:%M%Ez", tp);
   auto sec =
       std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch())
           .count();
-  return static_cast<uint64_t>(sec);  
+  return static_cast<uint64_t>(sec);
+}
+std::string formatTimestamp(uint64_t sec) {
+    auto tp = std::chrono::sys_seconds{std::chrono::seconds(sec)};
+    auto local = std::chrono::zoned_time{std::chrono::current_zone(), tp};
+    return std::format("{:%Y-%m-%d %H:%M:%S}", local);
 }
